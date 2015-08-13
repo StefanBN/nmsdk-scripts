@@ -30,7 +30,7 @@ if (out.results_status() == "failed") :
     sys.exit (1)
 print ("\nResults:\n")
 
-#print "Filer version:", out.child_get_string("version"), "\n"
+print "Filer version:", out.child_get_string("version"), "\n"
 
 api_ifconfig_get = NaElement("net-ifconfig-get")
 # This is the name of the interface to display. If not provided, all interfaces will be displayed.
