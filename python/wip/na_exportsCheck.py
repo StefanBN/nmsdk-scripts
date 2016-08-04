@@ -43,10 +43,24 @@ def shareParse(exports):
     # ex: /vol/<volume_name>  -sec=<auth type>,rw=<IP1>:<IP2>,[ro=<IP1>:<IP2>,]root=<IP1>:<IP2>
     # save in a dict of dict of sets: key = volume, value = dict => keys = sec,rw,ro,root and values auth type and set(IP)
     # dodos = {'share_name' : {'sec' : sys, 'rw' : set([<IP1>,<IP2>]), ...}}
+    dodos = {}
     for line in exports:
         # ex: /vol/volume_name      -sec=sys,rw=IP1:IP2,root=IP1:IP2,nosuid
-        sharePath = line.strip().split()[0]
-        exportOptions = line.lstrip("-").split(",")
+        sharePath, shareOptions = line.strip().split()
+        shareOptions = shareOptions.lstrip("-").split(",") # ['sec=sys','rw=IP1:IP2','root=IP1:IP2','nosuid']
+        if sharePath not in dodos:
+            dodos[sharePath] = {}
+        for opt in shareOptions:
+            if 'sec' in opt:
+                authOpt = opt.split("=")[1]
+                dodos[sharePath]['sec'] = authOpt
+            elif ':' in opt:
+                modeOpt, ipList = opt.split("=")
+                ipSet = set(ipList.split(":"))
+                dodos[sharePath][modeOpt] = ipSet
+            else:
+                # nosuid/suid option
+                dodos[sharePath][opt] = 1
     return dodos
 
 def cmpShare():
@@ -70,7 +84,7 @@ def main():
         exportfsCMD = 'ssh root@' + str(filer) + ' exportfs'
         rootVol = getFilerRoot(filer)
         exportsCMD = 'ssh root@' + str(filer) + ' rdfile /vol/' + str(rootVol) + '/etc/exports'
-    #TODO: parse, compare, return result
+    
 
 if __name__ == "__main__":
     main()
