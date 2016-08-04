@@ -38,12 +38,16 @@ def getFilerRoot(filer):
             rootVol = line.strip().split()[0]
     return rootVol
 
-def shareParse(shares):
+def shareParse(exports):
     # TODO: analyze the NFS share line
     # ex: /vol/<volume_name>  -sec=<auth type>,rw=<IP1>:<IP2>,[ro=<IP1>:<IP2>,]root=<IP1>:<IP2>
     # save in a dict of dict of sets: key = volume, value = dict => keys = sec,rw,ro,root and values auth type and set(IP)
     # dodos = {'share_name' : {'sec' : sys, 'rw' : set([<IP1>,<IP2>]), ...}}
-    pass
+    for line in exports:
+        # ex: /vol/volume_name      -sec=sys,rw=IP1:IP2,root=IP1:IP2,nosuid
+        sharePath = line.strip().split()[0]
+        exportOptions = line.lstrip("-").split(",")
+    return dodos
 
 def cmpShare():
     # TODO: compare 2 NFS shares
