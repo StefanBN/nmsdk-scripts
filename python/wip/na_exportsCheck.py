@@ -41,7 +41,7 @@ def getFilerRoot(filer):
 def shareParse(exports):
     # TODO: analyze the NFS share line
     # ex: /vol/<volume_name>  -sec=<auth type>,rw=<IP1>:<IP2>,[ro=<IP1>:<IP2>,]root=<IP1>:<IP2>
-    # save in a dict of dict of sets: key = volume, value = dict => keys = sec,rw,ro,root and values auth type and set(IP)
+    # save in a dict of dict of sets (lies not really dodos): key = volume, value = dict => keys = sec,rw,ro,root and values auth type and set(IP)
     # dodos = {'share_name' : {'sec' : sys, 'rw' : set([<IP1>,<IP2>]), ...}}
     dodos = {}
     for line in exports:
