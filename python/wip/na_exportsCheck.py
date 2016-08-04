@@ -24,12 +24,21 @@ def getVfilerRoot(vfiler):
     vfInfo = runCommand(vfInfoCMD)
     for line in vfInfo:
         if '[/etc]' in line:
-            # Path: /vol/vol_name [/etc]
-            volPath = line.split("")[1]
-            rootVol = volPath.split("/")[2]    
+            # ex: Path: /vol/vol_name [/etc]
+            volPath = line.strip().split()[1]
+            rootVol = volPath.split("/")[2]
     return rootVol
 
-def shareParse():
+def getFilerRoot(filer):
+    filerInfoCMD = 'ssh root@' + str(filer) + ' vol status'
+    filerInfo = runCommand(filerInfoCMD)
+    for line in filerInfo:
+        if 'root,' in line:
+            # ex:   volume_name online          raid4, flex       root, create_ucode=on, 
+            rootVol = line.strip().split()[0]
+    return rootVol
+
+def shareParse(shares):
     # TODO: analyze the NFS share line
     # ex: /vol/<volume_name>  -sec=<auth type>,rw=<IP1>:<IP2>,[ro=<IP1>:<IP2>,]root=<IP1>:<IP2>
     # save in a dict of dict of sets: key = volume, value = dict => keys = sec,rw,ro,root and values auth type and set(IP)
@@ -51,10 +60,12 @@ def main():
     volume = args.volumeName
     if vfiler:
         exportfsCMD = 'ssh root@' + str(filer) + ' vfiler run ' + str(vfiler) + ' exportfs'
-        exportsCMD = 'ssh root@' + str(filer) + ' rdfile /vol/vfiler_root/etc/exports'
+        vfRootVol = getVfilerRoot(vfiler)
+        exportsCMD = 'ssh root@' + str(filer) + ' rdfile /vol/' + str(vfRootVol) + '/etc/exports'
     else:
-        exportfsCMD = 'ssh root@' + str(filer) + ' vfiler run ' + str(vfiler) + ' exportfs'
-        exportsCMD = 'ssh root@' + str(filer) + ' rdfile /vol/vfiler_root/etc/exports'
+        exportfsCMD = 'ssh root@' + str(filer) + ' exportfs'
+        rootVol = getFilerRoot(filer)
+        exportsCMD = 'ssh root@' + str(filer) + ' rdfile /vol/' + str(rootVol) + '/etc/exports'
     #TODO: parse, compare, return result
 
 if __name__ == "__main__":
