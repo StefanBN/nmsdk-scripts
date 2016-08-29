@@ -39,10 +39,11 @@ def getFilerRoot(filer):
     return rootVol
 
 def shareParse(exports):
-    # TODO: analyze the NFS share line
-    # ex: /vol/<volume_name>  -sec=<auth type>,rw=<IP1>:<IP2>,[ro=<IP1>:<IP2>,]root=<IP1>:<IP2>
-    # save in a dict of dict of sets (lies not really dodos): key = volume, value = dict => keys = sec,rw,ro,root and values auth type and set(IP)
-    # dodos = {'share_name' : {'sec' : sys, 'rw' : set([<IP1>,<IP2>]), ...}}
+    '''
+    ex: /vol/<volume_name>  -sec=<auth type>,rw=<IP1>:<IP2>,[ro=<IP1>:<IP2>,]root=<IP1>:<IP2>
+    save in a dict of dict of sets (lies not really dodos): key = volume, value = dict => keys = sec,rw,ro,root and values auth type and set(IP)
+    dodos = {'share_name' : {'sec' : sys, 'rw' : set([<IP1>,<IP2>]), ...}}
+    '''
     dodos = {}
     for line in exports:
         # ex: /vol/volume_name      -sec=sys,rw=IP1:IP2,root=IP1:IP2,nosuid
@@ -54,7 +55,15 @@ def shareParse(exports):
             if 'sec' in opt:
                 authOpt = opt.split("=")[1]
                 dodos[sharePath]['sec'] = authOpt
-            elif ':' in opt:
+            elif 'rw' in opt:
+                modeOpt, ipList = opt.split("=")
+                ipSet = set(ipList.split(":"))
+                dodos[sharePath][modeOpt] = ipSet
+            elif 'ro' in opt:
+                modeOpt, ipList = opt.split("=")
+                ipSet = set(ipList.split(":"))
+                dodos[sharePath][modeOpt] = ipSet
+            elif 'root' in opt:
                 modeOpt, ipList = opt.split("=")
                 ipSet = set(ipList.split(":"))
                 dodos[sharePath][modeOpt] = ipSet
