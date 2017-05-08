@@ -12,7 +12,7 @@ if [ $# -eq 2 ]; then
   volume=$2
   echo "Checking quota for volume: $2"
   echo -e "\tSpace available in AFS: \c"
-  ssh -n -l root $filer df -h $volume | egrep -v "Filesystem|snap" | awk '{print $2}'
+  ssh -n -l root $filer df -k $volume | egrep -v "Filesystem|snap" | awk '{print $2}'
   echo -e "\tTotal quota size: \c"
   ssh -n -l root $filer quota report | grep $volume | awk 'BEGIN{sum=0} {sum=sum+$6} END{print sum}'
 else
@@ -22,7 +22,7 @@ else
     volume=$3
     echo "Checking quota for volume: $3"
     echo -e "\tSpace available in AFS: \c"
-    ssh -n -l root $filer df -h $volume | egrep -v "Filesystem|snap" | awk '{print $2}'
+    ssh -n -l root $filer df -k $volume | egrep -v "Filesystem|snap" | awk '{print $2}'
     echo -e "\tTotal quota size: \c"
     ssh -n -l root $filer vfiler run $vfiler quota report | grep $volume | awk 'BEGIN{sum=0} {sum=sum+$6} END{print sum}'
   fi
